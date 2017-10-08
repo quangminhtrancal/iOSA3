@@ -14,6 +14,9 @@ class MealTableViewController: UITableViewController {
     //MARK: Properties
     
     var meals = [Meal]()
+    var searchcontroller : UISearchController!
+    var resultcontroller = UITableViewController()
+    var filteredmeal=[String]()
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -8,13 +8,26 @@
 
 import UIKit
 
-class MealtypeTableViewController: UITableViewController{
+class MealtypeTableViewController: UITableViewController, UISearchResultsUpdating{
+
     var mealtype: [String]!
     
+    var searchcontroller : UISearchController!
+    var resultcontroller = UITableViewController()
+    var filteredmeal=[String]()
+    
     @IBOutlet var mealchoosen: UITableView!
+    
+    // Search function
+//    let searchController = UISearchController(searchResultsController: nil)
+//    var filtermeal = [String]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         mealtype=["Breakfast","Lunch","Dinner","Snack"]
+        
+
+        
         self.title="MEAL TYPE"
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -22,10 +35,47 @@ class MealtypeTableViewController: UITableViewController{
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
          self.navigationItem.rightBarButtonItem = self.editButtonItem
         
-        //self.navigationController?.setNavigationBarHidden(false, animated: true)
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        // Declare for the Search
+        self.searchcontroller = UISearchController(searchResultsController: self.resultcontroller)
+        self.tableView.tableHeaderView = self.searchcontroller.searchBar
+        self.searchcontroller.searchResultsUpdater = self
+        // To enable the list so that it still showup
+        self.searchcontroller.dimsBackgroundDuringPresentation=false
+        // To eliminate the space during showing search result
+        definesPresentationContext=true
+
+        self.resultcontroller.tableView.dataSource=self
+        self.resultcontroller.tableView.delegate=self
         
     }
-
+    
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        self.filteredmeal=self.mealtype.filter{ (meal : String) -> Bool in
+            //if meal.lowercased().contains(self.searchcontroller.searchBar.text!.lowercased()){
+            var result : Bool
+            result = false
+            for x in self.searchcontroller.searchBar.text!.lowercased(){
+                if meal.lowercased().contains(x){
+                    print("same")
+                    result = true
+                    break
+            
+                }
+                else{
+                    print("not same")
+                    result = false
+                }
+            }
+            return result
+        }
+        self.resultcontroller.tableView.reloadData()
+        print(filteredmeal)
+        print("reload")
+    }
+    
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -36,33 +86,44 @@ class MealtypeTableViewController: UITableViewController{
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 1
+
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 4
+        print("filter1 \(filteredmeal)")
+        if tableView == self.tableView{
+            return self.mealtype.count
+        }
+        else{
+            return self.filteredmeal.count
+        }
+        
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
-    }
+
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+
+        let cell = UITableViewCell()
 
         // Configure the cell...
-        cell.textLabel?.text=mealtype[indexPath.row]
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
+
+        if tableView==self.tableView{
+            cell.textLabel?.text=mealtype[indexPath.row]
+        }
+        else{
+            cell.textLabel?.text=filteredmeal[indexPath.row]
+        }
+        
+        //cell.textLabel?.text=mealtype[indexPath.row]
         return cell
+        
     }
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("\(mealtype[indexPath.row])")
-        
-        self.performSegue(withIdentifier: "detail", sender: nil)
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
-        
-        
+   
+            self.performSegue(withIdentifier: "detail", sender: nil)
+       
     }
 
 
