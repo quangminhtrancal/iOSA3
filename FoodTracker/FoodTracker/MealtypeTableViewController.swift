@@ -33,7 +33,7 @@ class MealtypeTableViewController: UITableViewController, UISearchResultsUpdatin
         // self.clearsSelectionOnViewWillAppear = false
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-         self.navigationItem.rightBarButtonItem = self.editButtonItem
+        self.navigationItem.rightBarButtonItem = self.editButtonItem
         
         self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         // Declare for the Search
@@ -58,13 +58,13 @@ class MealtypeTableViewController: UITableViewController, UISearchResultsUpdatin
             result = false
             for x in self.searchcontroller.searchBar.text!.lowercased(){
                 if meal.lowercased().contains(x){
-                    print("same")
+
                     result = true
                     break
             
                 }
                 else{
-                    print("not same")
+
                     result = false
                 }
             }

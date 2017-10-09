@@ -9,17 +9,25 @@
 import UIKit
 import os.log
 
-class MealTableViewController: UITableViewController {
+class MealTableViewController: UITableViewController, UISearchBarDelegate {
+
+    
     
     //MARK: Properties
     
+    
     var meals = [Meal]()
-    var searchcontroller : UISearchController!
-    var resultcontroller = UITableViewController()
-    var filteredmeal=[String]()
+    
+    // _____MINH add in for the search bar
+    var filteredmeal=[Meal]()
+    let searchbar = UISearchBar()
+    
+    var shouldShowsearchresult = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        //____Minh add in function for Search bar________
+        createSearchBar()
         
         // Use the edit button item provided by the table view controller.
         navigationItem.leftBarButtonItem = editButtonItem
@@ -32,21 +40,70 @@ class MealTableViewController: UITableViewController {
             // Load the sample data.
             loadSampleMeals()
         }
-    }
+        
 
+    }
+    
+    // ____ MINH add in for the search bar
+    func createSearchBar(){
+        searchbar.showsCancelButton = false
+        searchbar.placeholder = "Enter your search here!"
+        searchbar.delegate = self
+        self.navigationItem.titleView = searchbar
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
 
+    // ____ MINH add in function SearchBar to check the text in the search if there is any match between the key in value with the name from the meal
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        filteredmeal = self.meals.filter({ (name: Meal) -> Bool in
+            var result : Bool
+            result = false
+            for x in searchText.lowercased(){
+                if name.name.lowercased().contains(x){
+
+                    result = true
+                    break
+                    
+                }
+                else{
+
+                    result = false
+                }
+            }
+            return result
+        })
+        if searchText != ""{
+            shouldShowsearchresult = true
+            
+        }
+        else{
+            shouldShowsearchresult = false
+        }
+        self.tableView.reloadData()
+        
+    }
     //MARK: - Table view data source
+    // FOR THE UPDATE IN THE TABLE VIEW
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return meals.count
+        // ___ MINH add in to update the table view
+        
+        if shouldShowsearchresult == true{
+            return filteredmeal.count
+        }
+        else{
+            return meals.count
+        }
+        
     }
 
     
@@ -59,13 +116,20 @@ class MealTableViewController: UITableViewController {
             fatalError("The dequeued cell is not an instance of MealTableViewCell.")
         }
         
+         // ___ MINH add in to update the table view
         // Fetches the appropriate meal for the data source layout.
-        let meal = meals[indexPath.row]
+        var meal : (Meal)
+        if shouldShowsearchresult == true{
+            meal = filteredmeal[indexPath.row]
+        }
+        else{
+            meal = meals[indexPath.row]
+        }
         
         cell.nameLabel.text = meal.name
         cell.photoImageView.image = meal.photo
         cell.ratingControl.rating = meal.rating
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        
         
         return cell
     }
@@ -142,7 +206,7 @@ class MealTableViewController: UITableViewController {
         default:
             fatalError("Unexpected Segue Identifier; \(segue.identifier)")
         }
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        
     }
 
     
